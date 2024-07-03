@@ -3,6 +3,7 @@ import cors from "cors";
 import { APP_PORT } from "../config";
 import morgan from "morgan"
 import errorHandler from "./middlewares/errorHandler";
+import router from "./routes";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(morgan("dev"))
 app.use(express.static("build"));
 
 // Routes...
+app.use("/api", router);
 app.use((_, res) => {
 	res.json({
 		message: "Hello from api.ankimaster.com",
