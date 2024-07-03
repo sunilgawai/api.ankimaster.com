@@ -1,8 +1,32 @@
-import { Router } from "express";
-import authRoutes from "./auth.routes";
+const express = require("express");
+const router = express.Router();
+const noteController = require("../controllers/note.controller");
+const cardController = require("../controllers/card.controller");
+const deckController = require("../controllers/deck.controller");
+const reviewController = require("../controllers/review.controller");
 
-const router = Router();
+// Note routes
+router.post("/notes", noteController.createNote);
+router.get("/notes/:noteId", noteController.getNoteById);
+router.put("/notes/:noteId", noteController.updateNote);
+router.delete("/notes/:noteId", noteController.deleteNote);
+router.get("/notes", noteController.getNotes);
 
-router.use("/auth", authRoutes);
+// Card routes
+router.get("/notes/:noteId/cards", cardController.getCardsByNoteId);
+router.get("/cards/:cardId", cardController.getCardById);
+router.put("/cards/:cardId", cardController.updateCard);
 
-export default router;
+// Deck routes
+router.post("/decks", deckController.createDeck);
+router.get("/decks", deckController.getAllDecks);
+router.get("/decks/:deckId", deckController.getDeckById);
+router.put("/decks/:deckId", deckController.updateDeck);
+router.delete("/decks/:deckId", deckController.deleteDeck);
+
+// Review routes
+router.get("/review", reviewController.getNextReviewCards);
+router.post("/review", reviewController.submitReview);
+router.post("/review/action", reviewController.buryOrSuspendCard);
+
+module.exports = router;

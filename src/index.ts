@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { APP_PORT } from "../config";
-import morgan from "morgan"
+import morgan from "morgan";
 import errorHandler from "./middlewares/errorHandler";
-import router from "./routes";
+const router = require("./routes");
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.use(
 		extended: true,
 	})
 );
-app.use(morgan("dev"))
+app.use(morgan("dev"));
 app.use(express.static("build"));
 
 // Routes...
