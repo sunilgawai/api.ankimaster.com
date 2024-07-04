@@ -1,12 +1,12 @@
 // @ts-nocheck
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+
+import { database } from "../services/database";
 
 exports.getCardsByNoteId = async (req, res) => {
 	const { noteId } = req.params;
 
 	try {
-		const cards = await prisma.card.findMany({
+		const cards = await database.card.findMany({
 			where: { noteId: parseInt(noteId) },
 		});
 		res.json(cards);
@@ -19,7 +19,7 @@ exports.getCardById = async (req, res) => {
 	const { cardId } = req.params;
 
 	try {
-		const card = await prisma.card.findUnique({
+		const card = await database.card.findUnique({
 			where: { id: parseInt(cardId) },
 		});
 		if (!card) {
@@ -36,7 +36,7 @@ exports.updateCard = async (req, res) => {
 	const { deckId } = req.body;
 
 	try {
-		const updatedCard = await prisma.card.update({
+		const updatedCard = await database.card.update({
 			where: { id: parseInt(cardId) },
 			data: { deckId: parseInt(deckId) },
 		});

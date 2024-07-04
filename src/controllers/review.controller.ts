@@ -1,13 +1,13 @@
 // @ts-nocheck
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+
+import { database } from "../services/database";
 
 exports.getNextReviewCards = async (req, res) => {
 	const { deckId, limit = 1 } = req.query;
 	const userId = req.user.id;
 
 	try {
-		const cards = await prisma.card.findMany({
+		const cards = await database.card.findMany({
 			where: {
 				deckId: parseInt(deckId),
 				deck: { userId },
@@ -28,7 +28,7 @@ exports.submitReview = async (req, res) => {
 	const { cardId, ease, timeTaken } = req.body;
 
 	try {
-		const review = await prisma.review.create({
+		const review = await database.review.create({
 			data: {
 				cardId: parseInt(cardId),
 				ease: parseInt(ease),
@@ -38,7 +38,7 @@ exports.submitReview = async (req, res) => {
 
 		// Update card due date and ease factor based on the review
 		// This is a simplified version; you may want to implement a more sophisticated algorithm
-		const card = await prisma.card.update({
+		const card = await database.card.update({
 			where: { id: parseInt(cardId) },
 			data: {
 				dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Set due date to tomorrow
@@ -59,12 +59,12 @@ exports.buryOrSuspendCard = async (req, res) => {
 	try {
 		let updatedCard;
 		if (action === "bury") {
-			updatedCard = await prisma.card.update({
+			updatedCard = await database.card.update({
 				where: { id: parseInt(cardId) },
 				data: { dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000) }, // Set due date to tomorrow
 			});
 		} else if (action === "suspend") {
-			updatedCard = await prisma.card.update({
+			updatedCard = await database.card.update({
 				where: { id: parseInt(cardId) },
 				data: { suspended: true },
 			});

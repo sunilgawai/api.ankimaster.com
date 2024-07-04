@@ -1,14 +1,13 @@
 // @ts-nocheck
 
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+import { database } from "../services/database";
 
 exports.createDeck = async (req, res) => {
 	const { name, description } = req.body;
 	const userId = req.user.id;
 
 	try {
-		const deck = await prisma.deck.create({
+		const deck = await database.deck.create({
 			data: {
 				name,
 				description,
@@ -22,11 +21,11 @@ exports.createDeck = async (req, res) => {
 };
 
 exports.getAllDecks = async (req, res) => {
-	const userId = req.user.id;
+	// const userId = req.user.id;
 
 	try {
-		const decks = await prisma.deck.findMany({
-			where: { userId },
+		const decks = await database.deck.findMany({
+			// where: { userId },
 		});
 		res.json(decks);
 	} catch (error) {
@@ -38,7 +37,7 @@ exports.getDeckById = async (req, res) => {
 	const { deckId } = req.params;
 
 	try {
-		const deck = await prisma.deck.findUnique({
+		const deck = await database.deck.findUnique({
 			where: { id: parseInt(deckId) },
 			include: { notes: true, cards: true },
 		});
@@ -56,7 +55,7 @@ exports.updateDeck = async (req, res) => {
 	const { name, description } = req.body;
 
 	try {
-		const updatedDeck = await prisma.deck.update({
+		const updatedDeck = await database.deck.update({
 			where: { id: parseInt(deckId) },
 			data: { name, description },
 		});
@@ -70,7 +69,7 @@ exports.deleteDeck = async (req, res) => {
 	const { deckId } = req.params;
 
 	try {
-		await prisma.deck.delete({
+		await database.deck.delete({
 			where: { id: parseInt(deckId) },
 		});
 		res.json({ message: "Deck deleted successfully" });

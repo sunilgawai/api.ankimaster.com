@@ -7,10 +7,10 @@ const reviewController = require("../controllers/review.controller");
 
 // Note routes
 router.post("/notes", noteController.createNote);
+router.get("/notes", noteController.getNotes);
 router.get("/notes/:noteId", noteController.getNoteById);
 router.put("/notes/:noteId", noteController.updateNote);
 router.delete("/notes/:noteId", noteController.deleteNote);
-router.get("/notes", noteController.getNotes);
 
 // Card routes
 router.get("/notes/:noteId/cards", cardController.getCardsByNoteId);

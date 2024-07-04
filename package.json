@@ -4,7 +4,7 @@
   "description": "This is an api server for ankimaster react native and web application.",
   "main": "src/index.ts",
   "scripts": {
-    "serve": "nodemon -r esm src/index.ts",
+    "dev": "ts-node ./src/index.ts",
     "start": "node dist/src/index.js"
   },
   "repository": {

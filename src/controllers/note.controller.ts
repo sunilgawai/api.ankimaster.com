@@ -1,13 +1,14 @@
 // @ts-nocheck
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+
+import { database } from "../services/database";
+
 
 exports.createNote = async (req, res) => {
 	const { fields, tags, deckId } = req.body;
 	const userId = req.user.id; // Assuming you have authentication middleware
 
 	try {
-		const note = await prisma.note.create({
+		const note = await database.note.create({
 			data: {
 				fields,
 				tags,
@@ -25,7 +26,7 @@ exports.getNoteById = async (req, res) => {
 	const { noteId } = req.params;
 
 	try {
-		const note = await prisma.note.findUnique({
+		const note = await database.note.findUnique({
 			where: { id: parseInt(noteId) },
 			include: { cards: true },
 		});
@@ -43,7 +44,7 @@ exports.updateNote = async (req, res) => {
 	const { fields, tags } = req.body;
 
 	try {
-		const updatedNote = await prisma.note.update({
+		const updatedNote = await database.note.update({
 			where: { id: parseInt(noteId) },
 			data: { fields, tags },
 		});
@@ -57,7 +58,7 @@ exports.deleteNote = async (req, res) => {
 	const { noteId } = req.params;
 
 	try {
-		await prisma.note.delete({
+		await database.note.delete({
 			where: { id: parseInt(noteId) },
 		});
 		res.json({ message: "Note deleted successfully" });
@@ -68,10 +69,11 @@ exports.deleteNote = async (req, res) => {
 
 exports.getNotes = async (req, res) => {
 	const { deckId, modelId, query } = req.query;
-	const userId = req.user.id;
+	// const userId = req.user.id;
+	const userId = 1
 
 	try {
-		const notes = await prisma.note.findMany({
+		const notes = await database.note.findMany({
 			where: {
 				userId,
 				deckId: deckId ? parseInt(deckId) : undefined,
