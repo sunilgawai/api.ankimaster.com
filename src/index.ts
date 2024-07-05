@@ -25,16 +25,16 @@ app.use(
 		extended: true,
 	})
 );
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 app.use(express.static("build"));
 
 // Routes...
 app.use("/api", router);
-app.use((_, res) => {
-	res.json({
-		message: "Hello from api.ankimaster.com",
-	});
-});
+// app.use((_, res) => {
+// 	res.json({
+// 		message: "Hello from api.ankimaster.com",
+// 	});
+// });
 
 // Error handler...
 app.use(errorHandler);

@@ -1,9 +1,11 @@
+import multer from "multer";
 const express = require("express");
 const router = express.Router();
 const noteController = require("../controllers/note.controller");
 const cardController = require("../controllers/card.controller");
 const deckController = require("../controllers/deck.controller");
 const reviewController = require("../controllers/review.controller");
+const packageController = require('../controllers/package.controller');
 
 // Note routes
 router.post("/notes", noteController.createNote);
@@ -28,5 +30,10 @@ router.delete("/decks/:deckId", deckController.deleteDeck);
 router.get("/review", reviewController.getNextReviewCards);
 router.post("/review", reviewController.submitReview);
 router.post("/review/action", reviewController.buryOrSuspendCard);
+
+const upload = multer({ storage: multer.memoryStorage() });
+// Imports/Exports
+router.post('/import',upload.single('apkg'), packageController.importDeck);
+router.get('/export', packageController.exportCollection);
 
 module.exports = router;
