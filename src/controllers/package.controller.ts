@@ -128,7 +128,7 @@ class PackageController {
 			const unzipped: Record<string, Uint8Array> = unzipSync(
 				new Uint8Array(buffer)
 			);
-			collectionFile = unzipped["collection.anki2"];
+			collectionFile = unzipped["collection.anki21"];
 			if (!collectionFile) {
 				console.error("collection.anki2 not found in the package");
 				return res
