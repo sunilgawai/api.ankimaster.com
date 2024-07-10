@@ -6,6 +6,12 @@ const upload = multer({ dest: "uploads/" });
 
 const packageRouter = Router();
 
+packageRouter.get(
+	"/package/describe",
+	upload.single("file"),
+	PackageController.describeDatabase
+);
+
 packageRouter.post(
 	"/package/import",
 	upload.single("file"),
