@@ -1,68 +1,84 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  decks    Deck[]
-  notes    Note[]
+    id       Int    @id @default(autoincrement())
+    email    String @unique
+    password String
 }
 
-model Deck {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  userId      Int
-  user        User    @relation(fields: [userId], references: [id])
-  notes       Note[]
-  cards       Card[]
+model Col {
+    id     Int    @id
+    crt    Int
+    mod    Int
+    scm    Int
+    ver    Int
+    dty    Int
+    usn    Int
+    ls     Int
+    conf   String
+    models String
+    decks  String
+    dconf  String
+    tags   String
 }
 
-model Note {
-  id     Int    @id @default(autoincrement())
-  fields Json
-  tags   String[]
-  userId Int
-  user   User   @relation(fields: [userId], references: [id])
-  deckId Int
-  deck   Deck   @relation(fields: [deckId], references: [id])
-  cards  Card[]
+model Notes {
+    id    Int    @id
+    guid  String
+    mid   Int
+    mod   Int
+    usn   Int
+    tags  String
+    flds  String
+    sfld  Int
+    csum  Int
+    flags Int
+    data  String
 }
 
-model Card {
-  id           Int      @id @default(autoincrement())
-  noteId       Int
-  note         Note     @relation(fields: [noteId], references: [id])
-  deckId       Int
-  deck         Deck     @relation(fields: [deckId], references: [id])
-  ordinal      Int
-  dueDate      DateTime
-  interval     Int
-  ease         Float
-  reviews      Review[]
-  suspended    Boolean  @default(false)
+model Cards {
+    id     Int    @id
+    nid    Int
+    did    Int
+    ord    Int
+    mod    Int
+    usn    Int
+    type   Int
+    queue  Int
+    due    Int
+    ivl    Int
+    factor Int
+    reps   Int
+    lapses Int
+    left   Int
+    odue   Int
+    odid   Int
+    flags  Int
+    data   String
 }
 
-model Review {
-  id        Int      @id @default(autoincrement())
-  cardId    Int
-  card      Card     @relation(fields: [cardId], references: [id])
-  ease      Int
-  timeTaken Int
-  reviewedAt DateTime @default(now())
+model Revlog {
+    id      Int @id
+    cid     Int
+    usn     Int
+    ease    Int
+    ivl     Int
+    lastIvl Int
+    factor  Int
+    time    Int
+    type    Int
 }
 
-model Model {
-  id             Int     @id @default(autoincrement())
-  name           String
-  fields         Json
-  cardTemplates  Json
-  css            String?
+model Graves {
+    id   Int @id
+    usn  Int
+    oid  Int
+    type Int
 }
