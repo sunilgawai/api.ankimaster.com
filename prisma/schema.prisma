@@ -14,14 +14,14 @@ model User {
 }
 
 model Col {
-    id     Int    @id
-    crt    Int
-    mod    Int
-    scm    Int
-    ver    Int
-    dty    Int
-    usn    Int
-    ls     Int
+    id     BigInt @id
+    crt    BigInt
+    mod    BigInt
+    scm    BigInt
+    ver    BigInt
+    dty    BigInt
+    usn    BigInt
+    ls     BigInt
     conf   String
     models String
     decks  String
@@ -30,55 +30,69 @@ model Col {
 }
 
 model Notes {
-    id    Int    @id
+    id    BigInt    @id
     guid  String
-    mid   Int
-    mod   Int
-    usn   Int
+    mid   BigInt
+    mod   BigInt
+    usn   BigInt
     tags  String
     flds  String
-    sfld  Int
-    csum  Int
+    sfld  String
+    csum  BigInt
     flags Int
     data  String
 }
 
+// model Notes {
+//     id    BigInt    @id
+//     guid  String
+//     mid   BigInt
+//     mod   BigInt
+//     usn   BigInt
+//     tags  String
+//     flds  String
+//     sfld  String
+//     csum  BigInt
+//     flags BigInt
+//     data  String
+// }
+
 model Cards {
-    id     Int    @id
-    nid    Int
-    did    Int
-    ord    Int
-    mod    Int
-    usn    Int
-    type   Int
-    queue  Int
-    due    Int
-    ivl    Int
-    factor Int
-    reps   Int
-    lapses Int
-    left   Int
-    odue   Int
-    odid   Int
-    flags  Int
+    id     BigInt @id
+    nid    BigInt
+    did    BigInt
+    ord    BigInt
+    mod    BigInt
+    usn    BigInt
+    type   BigInt
+    queue  BigInt
+    due    BigInt
+    ivl    BigInt
+    factor BigInt
+    reps   BigInt
+    lapses BigInt
+    left   BigInt
+    odue   BigInt
+    odid   BigInt
+    flags  BigInt
     data   String
 }
 
 model Revlog {
-    id      Int @id
-    cid     Int
-    usn     Int
-    ease    Int
-    ivl     Int
-    lastIvl Int
-    factor  Int
-    time    Int
-    type    Int
+    id      BigInt @id
+    cid     BigInt
+    usn     BigInt
+    ease    BigInt
+    ivl     BigInt
+    lastIvl BigInt
+    factor  BigInt
+    time    BigInt
+    type    BigInt
 }
 
 model Graves {
-    id   Int @id
-    usn  Int
-    oid  Int
-    type Int
+    id   BigInt @id
+    usn  BigInt
+    oid  BigInt
+    type BigInt
 }

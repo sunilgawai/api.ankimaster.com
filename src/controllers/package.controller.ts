@@ -4,6 +4,14 @@ import initSqlJs, { Database, SqlJsStatic } from "sql.js";
 import { unzipSync } from "fflate";
 import path from "path";
 import fs from "fs";
+import {
+	insertCardsData,
+	insertColData,
+	insertGravesData,
+	insertNotesData,
+	insertRevlogData,
+} from "../services/database";
+import { Cards, Col, Graves, Notes, Revlog } from "@prisma/client";
 
 // Configure multer for file upload handling
 const upload = multer({ dest: "uploads/" });
@@ -56,27 +64,43 @@ class PackageController {
 			const SQL = await loadSqlJs();
 			db = new SQL.Database(collectionFile);
 		} catch (error) {
-			console.log("database connection error");
+			console.log("package database connection error");
 			return next(error);
 		}
 
 		try {
-			// Example query to get data from the cards table
-			const result = db.exec("SELECT * FROM cards");
-			if (result.length > 0) {
-				const columns = result[0].columns;
-				const values = result[0].values;
-				const cardData = values.map((row) => {
-					let card: Record<string, any> = {};
-					columns.forEach((col, index) => {
-						card[col] = row[index];
-					});
-					return card;
-				});
-				return res.json(cardData);
-			} else {
-				return res.status(200).json("No cards extracted.");
+			const tables = ["col", "notes", "cards", "revlog", "graves"];
+			for (const table of tables) {
+				const result = db.exec(`SELECT * FROM ${table}`);
+				if (result.length > 0) {
+					const columns = result[0].columns;
+					const values = result[0].values;
+					for (const row of values) {
+						let data: Record<string, any> = {};
+						columns.forEach((col, index) => {
+							data[col] = row[index];
+						});
+						switch (table) {
+							case "col":
+								await insertColData(data as Col);
+								break;
+							case "notes":
+								await insertNotesData(data as Notes);
+								break;
+							case "cards":
+								await insertCardsData(data as Cards);
+								break;
+							case "revlog":
+								await insertRevlogData(data as Revlog);
+								break;
+							case "graves":
+								await insertGravesData(data as Graves);
+								break;
+						}
+					}
+				}
 			}
+			return res.status(200).json("Data imported successfully.");
 		} catch (error) {
 			console.error("SQL query error", error);
 			return next(error);
