@@ -5,6 +5,7 @@ import morgan from "morgan";
 import errorHandler from "./middlewares/errorHandler";
 import packageRouter from "./routes/package.routes";
 import path from "path";
+import authRouter from "./routes/auth.routes";
 const router = require("./routes");
 
 const app = express();
@@ -28,10 +29,11 @@ app.use(
 	})
 );
 // app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.static("build"));
 
 // Routes...
+app.use("/api/auth", authRouter);
 app.use("/api", packageRouter);
 app.use("/api", router);
 // app.use((_, res) => {

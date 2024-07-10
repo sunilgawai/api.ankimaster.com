@@ -8,9 +8,12 @@ generator client {
 }
 
 model User {
-    id       Int    @id @default(autoincrement())
-    email    String @unique
+    id       String  @id @default(uuid())
+    username String
+    email    String  @unique
     password String
+    notes    Notes[]
+    cards    Cards[]
 }
 
 model Col {
@@ -30,17 +33,19 @@ model Col {
 }
 
 model Notes {
-    id    BigInt    @id
-    guid  String
-    mid   BigInt
-    mod   BigInt
-    usn   BigInt
-    tags  String
-    flds  String
-    sfld  String
-    csum  BigInt
-    flags Int
-    data  String
+    id     BigInt  @id
+    guid   String
+    mid    BigInt
+    mod    BigInt
+    usn    BigInt
+    tags   String
+    flds   String
+    sfld   String
+    csum   BigInt
+    flags  Int
+    data   String
+    User   User?   @relation(fields: [userId], references: [id])
+    userId String?
 }
 
 // model Notes {
@@ -58,7 +63,7 @@ model Notes {
 // }
 
 model Cards {
-    id     BigInt @id
+    id     BigInt  @id
     nid    BigInt
     did    BigInt
     ord    BigInt
@@ -76,6 +81,8 @@ model Cards {
     odid   BigInt
     flags  BigInt
     data   String
+    User   User?   @relation(fields: [userId], references: [id])
+    userId String?
 }
 
 model Revlog {

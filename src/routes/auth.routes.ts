@@ -1,16 +1,12 @@
-import { Router } from "express";
+import { Router } from 'express';
+import UserController from '../controllers/auth.controller';
 
-const authRoutes = Router();
-authRoutes.get("/", (req, res) => res.json("auth"));
-/**
- * Register User
- */
-authRoutes.post("/register");
+const authRouter = Router();
 
-/**
- * Login User
- */
+authRouter.post('/register', UserController.register);
+authRouter.post('/login', UserController.login);
+authRouter.post('/forgot-password', UserController.forgotPassword);
+authRouter.get('/confirm-email/:token', UserController.confirmEmail);
+authRouter.post('/new-password', UserController.newPassword);
 
-authRoutes.post("/login");
-
-export default authRoutes;
+export default authRouter;
