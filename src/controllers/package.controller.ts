@@ -1,120 +1,87 @@
-// @ts-nocheck
+import express from "express";
+import multer from "multer";
+import initSqlJs, { Database, SqlJsStatic } from "sql.js";
+import { unzipSync } from "fflate";
+import path from "path";
+import fs from "fs";
 
-import { database } from "../services/database";
+// Configure multer for file upload handling
+const upload = multer({ dest: "uploads/" });
 
-const fs = require("fs");
-const path = require("path");
-const AdmZip = require("adm-zip");
-const { parseApkg } = require("../utils/apkgParser");
+class PackageController {
+	static async import(
+		req: express.Request,
+		res: express.Response,
+		next: express.NextFunction
+	) {
+		// Check if file is provided
+		const file = req.file;
+		if (!file) {
+			return res.status(400).json("No file provided");
+		}
+		// Read the uploaded file
+		const filePath = path.resolve(file.path);
+		const buffer = await fs.promises.readFile(filePath);
 
-exports.importDeck = async (req, res) => {
-	const { file } = req;
-	// console.log("file", file);
-	// const userId = req.user.id; // Assuming you have authentication middleware
-	const userId = 1; // Assuming you have authentication middleware
+		let collectionFile: Uint8Array;
+		try {
+			// Unzip the .apkg file
+			const unzipped: Record<string, Uint8Array> = unzipSync(
+				new Uint8Array(buffer)
+			);
+			//   console.log("unzipped", unzipped);
 
-	if (!file) {
-		return res.status(400).json({ error: "No file uploaded" });
-	}
-
-	const apkgData = await parseApkg(file.buffer);
-	console.log("apkgData", apkgData);
-
-	try {
-		// Create deck
-		const deck = await database.deck.create({
-			data: {
-				name: apkgData.name,
-				description: apkgData.desc,
-				userId: userId,
-			},
-		});
-
-		// Create notes and cards
-		for (const noteData of apkgData.notes) {
-			const note = await database.note.create({
-				data: {
-					fields: noteData.fields,
-					tags: noteData.tags,
-					userId: userId,
-					deckId: deck.id,
-				},
-			});
-
-			for (const cardData of noteData.cards) {
-				await database.card.create({
-					data: {
-						noteId: note.id,
-						deckId: deck.id,
-						ordinal: cardData.ordinal,
-						dueDate: new Date(cardData.dueDate),
-						interval: cardData.interval,
-						ease: cardData.ease,
-					},
-				});
+			// Find and read the collection.anki2 file
+			collectionFile = unzipped["collection.anki2"];
+			if (!collectionFile) {
+				console.error("collection.anki2 not found in the package");
+				return res
+					.status(400)
+					.json("collection.anki2 not found in the package");
 			}
+		} catch (error) {
+			console.log("error in unzipping", error);
+			return next(error);
 		}
 
-		res
-			.status(200)
-			.json({ message: "Deck imported successfully", deckId: deck.id });
-	} catch (error) {
-		console.error("Error importing deck:", error);
-		res.status(500).json({ error: "Failed to import deck" });
-	}
-};
-
-exports.exportCollection = async (req, res) => {
-	try {
-		const userId = req.user.id; // Assuming you have authentication middleware
-
-		const user = await database.user.findUnique({
-			where: { id: userId },
-			include: {
-				decks: {
-					include: {
-						notes: {
-							include: {
-								cards: true,
-							},
-						},
-					},
-				},
-			},
-		});
-
-		if (!user) {
-			return res.status(404).json({ error: "User not found" });
+		let db: Database;
+		try {
+			// Load SQL.js
+			const loadSqlJs = async (): Promise<SqlJsStatic> => {
+				const SQL = await initSqlJs({
+					locateFile: (file) => path.join(__dirname, "../../public", file),
+				});
+				return SQL;
+			};
+			const SQL = await loadSqlJs();
+			db = new SQL.Database(collectionFile);
+		} catch (error) {
+			console.log("database connection error");
+			return next(error);
 		}
 
-		const exportData = {
-			decks: user.decks.map((deck) => ({
-				name: deck.name,
-				description: deck.description,
-				notes: deck.notes.map((note) => ({
-					fields: note.fields,
-					tags: note.tags,
-					cards: note.cards.map((card) => ({
-						ordinal: card.ordinal,
-						dueDate: card.dueDate,
-						interval: card.interval,
-						ease: card.ease,
-						suspended: card.suspended,
-					})),
-				})),
-			})),
-		};
-
-		const zipFile = new AdmZip();
-		zipFile.addFile("collection.json", Buffer.from(JSON.stringify(exportData)));
-
-		const zipBuffer = zipFile.toBuffer();
-
-		res.set("Content-Type", "application/zip");
-		res.set("Content-Disposition", "attachment; filename=collection.apkg");
-		res.send(zipBuffer);
-	} catch (error) {
-		console.error("Error exporting collection:", error);
-		res.status(500).json({ error: "Failed to export collection" });
+		try {
+			// Example query to get data from the cards table
+			const result = db.exec("SELECT * FROM cards");
+			if (result.length > 0) {
+				const columns = result[0].columns;
+				const values = result[0].values;
+				const cardData = values.map((row) => {
+					let card: Record<string, any> = {};
+					columns.forEach((col, index) => {
+						card[col] = row[index];
+					});
+					return card;
+				});
+				return res.json(cardData);
+			} else {
+				return res.status(200).json("No cards extracted.");
+			}
+		} catch (error) {
+			console.error("SQL query error", error);
+			return next(error);
+		}
 	}
-};
+}
+
+export default PackageController;
