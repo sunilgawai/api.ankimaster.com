@@ -1,5 +1,5 @@
 // User interface
-interface User {
+export interface User {
 	id: number;
 	email: string;
 	password: string; // Note: In practice, never expose passwords in client-side code
@@ -8,51 +8,78 @@ interface User {
 }
 
 // Deck interface
-interface Deck {
+export interface Deck {
 	id: number;
 	name: string;
 	description?: string;
-	userId: number;
+	category: "Uncategorized" | string;
+	userId: number | null;
 	user?: User;
 	notes?: Note[];
 	cards?: Card[];
+	subdecks: Deck[];
+	createdAt: number; // date num in unix epoch
+	last_tested: number; // date num in unix epoch - will contain same value as deckScores related date
+	last_score: number;
 }
 
-// Note interface
-interface Note {
-	id: number;
-	fields: { [key: string]: string }; // Dynamic fields based on the note type
-	tags: string[];
-	userId: number;
-	user?: User;
-	deckId: number;
-	deck?: Deck;
-	cards?: Card[];
+export interface Note {
+	id: string;
+	guid: string;
+	mid: number;
+	mod: number;
+	usn: number;
+	tags: string;
+	flds: string;
+	sfld: string;
+	csum: number;
+	flags: number;
+	data: string;
+	userId: string;
 }
 
-// Card interface
-interface Card {
-	id: number;
-	noteId: number;
-	note?: Note;
-	deckId: number;
-	deck?: Deck;
-	ordinal: number;
-	dueDate: Date;
-	interval: number;
-	ease: number;
-	reviews?: Review[];
-	suspended: boolean;
+export interface Card {
+	id: string;
+	nid: string;
+	did: number;
+	ord: number;
+	mod: number;
+	usn: number;
+	type: number;
+	queue: number;
+	due: number;
+	ivl: number;
+	factor: number;
+	reps: number;
+	lapses: number;
+	left: number;
+	odue: number;
+	odid: number;
+	flags: number;
+	data: string;
+	userId: string;
 }
 
-// Review interface
-interface Review {
-	id: number;
-	cardId: number;
-	card?: Card;
-	ease: number;
-	timeTaken: number;
-	reviewedAt: Date;
+export interface Col {
+	id: string;
+	crt: number;
+	mod: number;
+	scm: number;
+	ver: number;
+	dty: number;
+	usn: number;
+	ls: number;
+	conf: string;
+	models: string;
+	decks: string;
+	dconf: string;
+	tags: string;
+}
+
+export interface SyncData {
+	notes: Note[];
+	cards: Card[];
+	col: Col | null;
 }
 
 // Model interface (for note types)

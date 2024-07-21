@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { database } from "../services/database";
+import JSONbig from 'json-bigint';
 
 
 exports.createNote = async (req, res) => {
@@ -22,19 +23,22 @@ exports.createNote = async (req, res) => {
 	}
 };
 
-exports.getNoteById = async (req, res) => {
+exports.getNoteById = async (req, res, next) => {
 	const { noteId } = req.params;
 
 	try {
-		const note = await database.note.findUnique({
-			where: { id: parseInt(noteId) },
-			include: { cards: true },
+		const note = await database.notes.findUnique({
+			where: { id: noteId },
+			// include: { cards: true },
 		});
 		if (!note) {
 			return res.status(404).json({ error: "Note not found" });
 		}
-		res.json(note);
+		// res.json(note);
+        res.json(JSONbig.parse(JSONbig.stringify(note)));
 	} catch (error) {
+        console.log("error",error)
+        return next(error);
 		res.status(400).json({ error: error.message });
 	}
 };
@@ -73,13 +77,13 @@ exports.getNotes = async (req, res) => {
 	const userId = 1
 
 	try {
-		const notes = await database.note.findMany({
-			where: {
-				userId,
-				deckId: deckId ? parseInt(deckId) : undefined,
-				// Add more filtering options based on modelId and query
-			},
-			include: { cards: true },
+		const notes = await database.notes.findMany({
+			// where: {
+			// 	userId,
+			// 	deckId: deckId ? parseInt(deckId) : undefined,
+			// 	// Add more filtering options based on modelId and query
+			// },
+			include: { User: true },
 		});
 		res.json(notes);
 	} catch (error) {
